@@ -1,11 +1,11 @@
 model_list:
   # Ollama Models - Local inference server at 192.168.6.5:11434
-  - model_name: ollama-magistral
+  - model_name: magistral
     litellm_params:
       model: ollama/magistral:latest
       api_base: http://192.168.6.5:11434
-      
-  - model_name: ollama-mistral-small3.2
+
+  - model_name: mistral-small3.2
     litellm_params:
       model: ollama/mistral-small3.2:latest
       api_base: http://192.168.6.5:11434
@@ -43,35 +43,97 @@ model_list:
       rpm: 60      # Requests per minute limit
       tpm: 500000  # Tokens per minute limit
     model_info:
-      id: "mistral-1"  # Unique identifier for this deployment
-      
+      id: "mistral-1"
+
   - model_name: mistral-small-latest
     litellm_params:
       model: mistral/mistral-small-latest
       api_key: nQCpJNxluldnzXd6ylhOJiaA1j0zlXCV
-      rpm: 60      # Requests per minute limit
-      tpm: 500000  # Tokens per minute limit
+      rpm: 60
+      tpm: 500000
     model_info:
-      id: "mistral-2"  # Unique identifier for this deployment
+      id: "mistral-2"
 
-  # Mistral Models - Magistral variant load balanced across API keys
-  - model_name: magistral-small-latest
+  # Mistral Models - Standard mistral-medium-latest load balanced across API keys
+  - model_name: mistral-medium-latest
     litellm_params:
-      model: mistral/mistral-small-latest  # Using standard Mistral model
+      model: mistral/mistral-medium-latest
       api_key: YCIZcE6XJefvNDshEDjveIcoE9237Ef5
-      rpm: 60      # Requests per minute limit
-      tpm: 500000  # Tokens per minute limit
+      rpm: 60
+      tpm: 500000
     model_info:
-      id: "magistral-1"  # Unique identifier for this deployment
-      
+      id: "mistral-medium-1"
+
+  - model_name: mistral-medium-latest
+    litellm_params:
+      model: mistral/mistral-medium-latest
+      api_key: nQCpJNxluldnzXd6ylhOJiaA1j0zlXCV
+      rpm: 60
+      tpm: 500000
+    model_info:
+      id: "mistral-medium-2"
+
+  # Mistral Models - Standard mistral-large-latest load balanced across API keys
+  - model_name: mistral-large-latest
+    litellm_params:
+      model: mistral/mistral-large-latest
+      api_key: YCIZcE6XJefvNDshEDjveIcoE9237Ef5
+      rpm: 60
+      tpm: 500000
+    model_info:
+      id: "mistral-large-1"
+
+  - model_name: mistral-large-latest
+    litellm_params:
+      model: mistral/mistral-large-latest
+      api_key: nQCpJNxluldnzXd6ylhOJiaA1j0zlXCV
+      rpm: 60
+      tpm: 500000
+    model_info:
+      id: "mistral-large-2"
+
+  # Mistral Models - Magistral small variant load balanced across API keys
   - model_name: magistral-small-latest
     litellm_params:
-      model: mistral/mistral-small-latest  # Using standard Mistral model
-      api_key: nQCpJNxluldnzXd6ylhOJiaA1j0zlXCV
-      rpm: 60      # Requests per minute limit
-      tpm: 500000  # Tokens per minute limit
+      model: mistral/magistral-small-latest
+      api_key: YCIZcE6XJefvNDshEDjveIcoE9237Ef5
+      rpm: 60
+      tpm: 500000
     model_info:
-      id: "magistral-2"  # Unique identifier for this deployment
+      id: "magistral-1"
+
+  - model_name: magistral-small-latest
+    litellm_params:
+      model: mistral/magistral-small-latest
+      api_key: nQCpJNxluldnzXd6ylhOJiaA1j0zlXCV
+      rpm: 60
+      tpm: 500000
+    model_info:
+      id: "magistral-2"
+
+  # Mistral Models - Magistral medium variant load balanced across API keys
+  - model_name: magistral-medium-latest
+    litellm_params:
+      model: mistral/magistral-medium-latest
+      api_key: YCIZcE6XJefvNDshEDjveIcoE9237Ef5
+      rpm: 60
+      tpm: 500000
+    model_info:
+      id: "magistral-medium-1"
+
+  - model_name: magistral-medium-latest
+    litellm_params:
+      model: mistral/magistral-medium-latest
+      api_key: nQCpJNxluldnzXd6ylhOJiaA1j0zlXCV
+      rpm: 60
+      tpm: 500000
+    model_info:
+      id: "magistral-medium-2"
+
+# Fallback configuration
+fallbacks:
+  - "mistral-small-latest": ["mistral-small3.2"]
+  - "magistral-small-latest": ["magistral"]
 
 # Router settings for load balancing and performance optimization
 router_settings:
