@@ -1,0 +1,85 @@
+model_list:
+  # Ollama Models - Local inference server at 192.168.6.5:11434
+  - model_name: ollama-magistral
+    litellm_params:
+      model: ollama/magistral:latest
+      api_base: http://192.168.6.5:11434
+      
+  - model_name: ollama-mistral-small3.2
+    litellm_params:
+      model: ollama/mistral-small3.2:latest
+      api_base: http://192.168.6.5:11434
+
+  # OpenRouter Models - Free tier models via OpenRouter API
+  - model_name: OR-DeepSeek-R1-0528
+    litellm_params:
+      model: openrouter/deepseek/deepseek-r1-0528:free
+      api_base: https://openrouter.ai/api/v1
+      api_key: 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
+    model_info:
+      supports_web_search: true
+      supports_function_calling: true
+      supports_response_schema: true
+      supports_tool_choice: true
+      supports_parallel_function_calling: true
+
+  - model_name: OR-DeepSeek-V3
+    litellm_params:
+      model: openrouter/deepseek/deepseek-chat-v3-0324:free
+      api_base: https://openrouter.ai/api/v1
+      api_key: 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
+    model_info:
+      supports_web_search: true
+      supports_function_calling: true
+      supports_response_schema: true
+      supports_tool_choice: true
+      supports_parallel_function_calling: true
+
+  # Mistral Models - Standard mistral-small-latest load balanced across API keys
+  - model_name: mistral-small-latest
+    litellm_params:
+      model: mistral/mistral-small-latest
+      api_key: YCIZcE6XJefvNDshEDjveIcoE9237Ef5
+      rpm: 60      # Requests per minute limit
+      tpm: 500000  # Tokens per minute limit
+    model_info:
+      id: "mistral-1"  # Unique identifier for this deployment
+      
+  - model_name: mistral-small-latest
+    litellm_params:
+      model: mistral/mistral-small-latest
+      api_key: nQCpJNxluldnzXd6ylhOJiaA1j0zlXCV
+      rpm: 60      # Requests per minute limit
+      tpm: 500000  # Tokens per minute limit
+    model_info:
+      id: "mistral-2"  # Unique identifier for this deployment
+
+  # Mistral Models - Magistral variant load balanced across API keys
+  - model_name: magistral-small-latest
+    litellm_params:
+      model: mistral/mistral-small-latest  # Using standard Mistral model
+      api_key: YCIZcE6XJefvNDshEDjveIcoE9237Ef5
+      rpm: 60      # Requests per minute limit
+      tpm: 500000  # Tokens per minute limit
+    model_info:
+      id: "magistral-1"  # Unique identifier for this deployment
+      
+  - model_name: magistral-small-latest
+    litellm_params:
+      model: mistral/mistral-small-latest  # Using standard Mistral model
+      api_key: nQCpJNxluldnzXd6ylhOJiaA1j0zlXCV
+      rpm: 60      # Requests per minute limit
+      tpm: 500000  # Tokens per minute limit
+    model_info:
+      id: "magistral-2"  # Unique identifier for this deployment
+
+# Router settings for load balancing and performance optimization
+router_settings:
+  routing_strategy: simple-shuffle  # Distribute requests across deployments
+  num_retries: 3  # Retry failed requests up to 3 times
+  timeout: 30  # Request timeout in seconds
+
+# Global LiteLLM settings
+litellm_settings:
+  drop_params: true  # Drop unsupported parameters instead of erroring
+  set_verbose: false  # Disable verbose logging
