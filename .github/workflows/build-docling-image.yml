@@ -29,28 +29,38 @@ jobs:
       - name: Check for new docling releases
         id: check
         run: |
-          # Get the latest release tag from docling repository
-          LATEST_TAG=$(curl -s https://api.github.com/repos/docling-project/docling/releases/latest | jq -r .tag_name)
+          # Try to get the latest release first
+          echo "Checking latest release..."
+          LATEST_TAG=$(curl -s https://api.github.com/repos/docling-project/docling/releases/latest | jq -r .tag_name 2>/dev/null || echo "null")
           
+          # If no release found, try to get the latest tag
           if [ "$LATEST_TAG" = "null" ] || [ -z "$LATEST_TAG" ]; then
-            echo "Error: Could not fetch latest release tag"
+            echo "No release found, checking latest tag..."
+            LATEST_TAG=$(curl -s https://api.github.com/repos/docling-project/docling/tags | jq -r '.[0].name' 2>/dev/null || echo "null")
+          fi
+          
+          # Final validation
+          if [ "$LATEST_TAG" = "null" ] || [ -z "$LATEST_TAG" ]; then
+            echo "Error: Could not fetch latest version from docling repository"
+            echo "This might be due to API rate limits or network issues"
             exit 1
           fi
           
-          echo "Latest docling tag: $LATEST_TAG"
+          echo "Latest docling version: $LATEST_TAG"
           
           # Check if we already have this version built by checking the GitHub Container Registry
           echo "Checking if image already exists..."
           PACKAGE_EXISTS=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             "https://api.github.com/orgs/${{ github.repository_owner }}/packages/container/${{ env.IMAGE_NAME }}/versions" \
-            | jq -r --arg tag "$LATEST_TAG" '.[] | select(.metadata.container.tags[]? == $tag) | .name' | head -1)
+            2>/dev/null | jq -r --arg tag "$LATEST_TAG" '.[] | select(.metadata.container.tags[]? == $tag) | .name' | head -1 || echo "")
           
           if [ -n "$PACKAGE_EXISTS" ]; then
             echo "Image for $LATEST_TAG already exists (package: $PACKAGE_EXISTS)"
             if [ "${{ github.event.inputs.force_build }}" = "true" ]; then
-              echo "Force build requested"
+              echo "Force build requested, will rebuild"
               echo "should_build=true" >> $GITHUB_OUTPUT
             else
+              echo "Skipping build for existing version"
               echo "should_build=false" >> $GITHUB_OUTPUT
             fi
           else
@@ -116,3 +126,18 @@ jobs:
           echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
           echo "docker run --rm -v \$(pwd):/workspace ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ needs.check-for-updates.outputs.latest_tag }}" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+  notify-skip:
+    needs: check-for-updates
+    if: needs.check-for-updates.outputs.should_build == 'false'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate skip summary
+        run: |
+          echo "## ⏭️ Build Skipped" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Reason:** Image for version \`${{ needs.check-for-updates.outputs.latest_tag }}\` already exists" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "To force a rebuild, manually trigger this workflow with the 'Force build' option enabled." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Existing image:** \`${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ needs.check-for-updates.outputs.latest_tag }}\`" >> $GITHUB_STEP_SUMMARY
