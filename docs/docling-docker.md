@@ -33,7 +33,6 @@ docker run --rm -it -v $(pwd):/workspace ghcr.io/therobrary/docling:latest bash
 
 ### Available Platforms
 - linux/amd64
-- linux/arm64
 
 ## Workflow Details
 
