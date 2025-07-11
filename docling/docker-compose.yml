@@ -1,0 +1,24 @@
+services:
+  docling:
+    image: ghcr.io/therobrary/docling:latest
+    container_name: docling
+    restart: unless-stopped
+    volumes:
+      # Mount current directory as workspace for document processing
+      - ./workspace:/workspace
+      # Mount cache directory to persist downloaded models
+      - docling_cache:/root/.cache/docling
+    working_dir: /workspace
+    environment:
+      # Optimize for container environments
+      - OMP_NUM_THREADS=4
+      - HF_HOME=/tmp/
+      - TORCH_HOME=/tmp/
+      - DOCLING_ARTIFACTS_PATH=/root/.cache/docling/models
+    # Keep container running for interactive use
+    tty: true
+    stdin_open: true
+
+volumes:
+  docling_cache:
+    driver: local
