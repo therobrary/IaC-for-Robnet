@@ -1,0 +1,10 @@
+# Temporary files and output from docling processing
+docling/workspace/*.pdf.md
+docling/workspace/*.docx.md
+docling/workspace/*.pptx.md
+docling/workspace/output/
+docling/workspace/.tmp/
+
+# Docker volumes
+**/docker-data/
+**/.docker-volumes/
