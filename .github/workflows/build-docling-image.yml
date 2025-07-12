@@ -18,7 +18,7 @@ env:
 
 jobs:
   check-for-updates:
-    runs-on: [self-hosted, intel]
+    runs-on: [self-hosted, group:intel]
     permissions:
       contents: read
       packages: read
@@ -73,7 +73,7 @@ jobs:
   build-and-push:
     needs: check-for-updates
     if: needs.check-for-updates.outputs.should_build == 'true'
-    runs-on: [self-hosted, intel]
+    runs-on: [self-hosted, group:intel]
     permissions:
       contents: read
       packages: write
@@ -130,7 +130,7 @@ jobs:
   notify-skip:
     needs: check-for-updates
     if: needs.check-for-updates.outputs.should_build == 'false'
-    runs-on: [self-hosted, intel]
+    runs-on: [self-hosted, group:intel]
     steps:
       - name: Generate skip summary
         run: |

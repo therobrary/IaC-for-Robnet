@@ -8,3 +8,6 @@ docling/workspace/.tmp/
 # Docker volumes
 **/docker-data/
 **/.docker-volumes/
+
+# Build tools and temporary executables
+actionlint
